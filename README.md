@@ -10,24 +10,30 @@ A demonstration project showcasing a microservices architecture with Spring Clou
                     |    (Port 8080)    |
                     +--------+---------+
                              |
-          +------------------+------------------+
-          |                  |                  |
-    +-----v-----+      +-----v-----+      +-----v-----+
-    | User      |      | Post      |      | Comment   |
-    | Service   |      | Service   |      | Service   |
-    | (8081)    |      | (8082)    |      | (8083)    |
-    +-----------+      +-----------+      +-----------+
-          |                  |                  |
-          +------------------+------------------+
+      +----------------------+----------------------+
+      |                      |                      |
++----v----+           +------v------+          +-----v-----+
+| User    |           | Post        |          | Comment   |
+| Service |           | Service     |          | Service   |
+| (8081)  |           | (8082)     |          | (8083)   |
++---------+           +------+------+          +-----------+
+      |                      |                      |
+      +----------+-----------+----------------------+
+                 |           |                      |
+           +-----v-----------v------+      +--------v---------+
+           |    Kafka Topics      |      |   Notification    |
+           |  post-events         |<-----|   Service         |
+           |  comment-events     |      |   (8084)           |
+           +---------------------+      +-------------------+
                              |
-                    +--------v---------+
-                    |    MongoDB       |
-                    +------------------+
+                     +--------v---------+
+                     |    MongoDB       |
+                     +------------------+
                              |
-                    +--------v---------+
-                    |     Eureka      |
-                    |    (8761)       |
-                    +------------------+
+                     +--------v---------+
+                     |     Eureka      |
+                     |    (8761)       |
+                     +------------------+
 ```
 
 ## Services
@@ -39,6 +45,7 @@ A demonstration project showcasing a microservices architecture with Spring Clou
 | User Service | 8081 | User management (CRUD) |
 | Post Service | 8082 | Post management with Kafka |
 | Comment Service | 8083 | Comments with Circuit Breaker |
+| Notification Service | 8084 | Kafka consumer for events |
 
 ## Features
 
@@ -133,6 +140,12 @@ cd comment-service
 mvn spring-boot:run
 ```
 
+6. **Start Notification Service**:
+```bash
+cd notification-service
+mvn spring-boot:run
+```
+
 ## API Endpoints
 
 All endpoints are accessible through the API Gateway at `http://localhost:8080`
@@ -188,6 +201,16 @@ curl http://localhost:8080/comments/post/{postId}
 curl http://localhost:8080/comments/test-circuit-breaker/user/{userId}
 ```
 
+### Notification Service (Port 8084)
+
+```bash
+# Get latest post notifications
+curl http://localhost:8080/notifications/latest/post
+
+# Get latest comment notifications
+curl http://localhost:8080/notifications/latest/comment
+```
+
 ## Testing Circuit Breaker
 
 The Comment Service has test endpoints to trigger circuit breaker:
@@ -211,6 +234,7 @@ curl http://localhost:8080/comments/test-circuit-breaker/user/123
 - User Service: http://localhost:8081/actuator/prometheus
 - Post Service: http://localhost:8082/actuator/prometheus
 - Comment Service: http://localhost:8083/actuator/prometheus
+- Notification Service: http://localhost:8084/actuator/prometheus
 
 ### Zipkin Tracing
 
@@ -230,13 +254,16 @@ curl http://localhost:8080/actuator/health
 curl http://localhost:8081/actuator/health
 curl http://localhost:8082/actuator/health
 curl http://localhost:8083/actuator/health
+curl http://localhost:8084/actuator/health
 ```
 
 ## Kafka Topics
 
 Topics are created automatically:
-- `post-events` - Published by Post Service
-- `comment-events` - Published by Comment Service
+- `post-events` - Published by Post Service, consumed by Notification Service
+- `comment-events` - Published by Comment Service, consumed by Notification Service
+
+The Notification Service listens to both topics and logs received events.
 
 ## Project Structure
 
@@ -250,7 +277,8 @@ microservices-demo/
 ├── api-gateway/              # API Gateway
 ├── user-service/             # User microservice
 ├── post-service/             # Post microservice
-└── comment-service/          # Comment microservice
+├── comment-service/          # Comment microservice
+└── notification-service/      # Notification microservice
 ```
 
 ## Tech Stack
@@ -261,7 +289,7 @@ microservices-demo/
 - Spring Cloud OpenFeign
 - Spring Cloud Gateway
 - Resilience4j (Circuit Breaker)
-- Apache Kafka
+- Apache Kafka (Producer + Consumer)
 - Netflix Eureka
 - Micrometer + Prometheus
 - Zipkin Distributed Tracing

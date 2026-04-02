@@ -1,3 +1,4 @@
 kafka_*
 */target
 *.log
+.mongo_data
