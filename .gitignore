@@ -3,3 +3,8 @@ kafka_*
 *.log
 .mongo_data
 setup-kafka.*
+*/.classpath
+*/.project
+*/.settings
+*/bin
+
