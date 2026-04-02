@@ -30,9 +30,5 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.demo</groupId>
-            <artifactId>common</artifactId>
-        </dependency>
     </dependencies>
 </project>

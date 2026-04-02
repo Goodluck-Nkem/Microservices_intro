@@ -42,9 +42,5 @@
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot3</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.demo</groupId>
-            <artifactId>common</artifactId>
-        </dependency>
     </dependencies>
 </project>

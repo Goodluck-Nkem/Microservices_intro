@@ -34,9 +34,5 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.demo</groupId>
-            <artifactId>common</artifactId>
-        </dependency>
     </dependencies>
 </project>

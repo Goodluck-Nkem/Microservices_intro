@@ -8,13 +8,15 @@
         <outputRelativeToContentRoot value="true" />
         <module name="comment-service" />
         <module name="post-service" />
-        <module name="common" />
         <module name="api-gateway" />
         <module name="user-service" />
         <module name="eureka-server" />
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="common" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
