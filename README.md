@@ -83,7 +83,7 @@ bin\windows\kafka-server-start.bat config\server.properties
 **macOS/Linux:**
 ```bash
 ./kafka_2.13-3.9.1/bin/zookeeper-server-start.sh ./kafka_2.13-3.9.1/config/zookeeper.properties
-./kafka_2.13-3.9.1/bin/kafka-server-start.sh ./kafka_2.13-3.9.1/config/server.properties
+sleep 20 && ./kafka_2.13-3.9.1/bin/kafka-server-start.sh ./kafka_2.13-3.9.1/config/server.properties
 ```
 
 Or use Docker Compose:
