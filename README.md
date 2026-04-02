@@ -75,15 +75,15 @@ Since you have Kafka downloaded, start it using:
 
 **Windows:**
 ```batch
-cd kafka_<version>
+cd kafka_2.13-3.9.1
 bin\windows\zookeeper-server-start.bat config\zookeeper.properties
 bin\windows\kafka-server-start.bat config\server.properties
 ```
 
 **macOS/Linux:**
 ```bash
-./kafka_2.13-<version>/bin/zookeeper-server-start.sh ./kafka_2.13-<version>/config/zookeeper.properties
-./kafka_2.13-<version>/bin/kafka-server-start.sh ./kafka_2.13-<version>/config/server.properties
+./kafka_2.13-3.9.1/bin/zookeeper-server-start.sh ./kafka_2.13-3.9.1/config/zookeeper.properties
+./kafka_2.13-3.9.1/bin/kafka-server-start.sh ./kafka_2.13-3.9.1/config/server.properties
 ```
 
 Or use Docker Compose:
