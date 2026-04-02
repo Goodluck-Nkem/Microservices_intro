@@ -35,10 +35,6 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-zipkin</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.demo</groupId>
             <artifactId>common</artifactId>
         </dependency>
