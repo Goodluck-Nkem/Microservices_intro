@@ -1,5 +1,7 @@
 package com.demo.comment.service;
 
+import com.demo.comment.feign.PostClient;
+import com.demo.comment.feign.UserClient;
 import com.demo.comment.model.Comment;
 import com.demo.comment.model.Post;
 import com.demo.comment.model.User;
@@ -9,16 +11,16 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import lombok.*;
 
+@RequiredArgsConstructor
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final UserClient userClient;
+    private final PostClient postClient;
 
-    public CommentService(CommentRepository commentRepository, KafkaTemplate<String, String> kafkaTemplate) {
-        this.commentRepository = commentRepository;
-        this.kafkaTemplate = kafkaTemplate;
-    }
 
     public Comment createComment(Comment comment) {
         Comment saved = commentRepository.save(comment);
@@ -54,7 +56,8 @@ public class CommentService {
 
     @CircuitBreaker(name = "postService", fallbackMethod = "getPostFallback")
     public Post getPost(String postId) {
-        throw new RuntimeException("Simulated post service failure");
+        Post post = postClient.getPost(postId).getBody();
+        return post;
     }
 
     public Post getPostFallback(String postId, Throwable t) {

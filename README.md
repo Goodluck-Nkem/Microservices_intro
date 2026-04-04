@@ -197,8 +197,12 @@ curl http://localhost:8080/comments
 # Get comments for a post
 curl http://localhost:8080/comments/post/{postId}
 
+# Get comment with post via openfeign
+curl http://localhost:8080/comments/{commentId}/detailed
+
 # Test circuit breaker
 curl http://localhost:8080/comments/test-circuit-breaker/user/{userId}
+curl http://localhost:8080/comments/test-circuit-breaker/post/{postId}
 ```
 
 ### Notification Service (Port 8084)

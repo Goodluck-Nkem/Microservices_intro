@@ -1,20 +1,25 @@
 package com.demo.comment.controller;
 
+import com.demo.comment.feign.PostClient;
+import com.demo.comment.feign.UserClient;
 import com.demo.comment.model.Comment;
+import com.demo.comment.model.Post;
+import com.demo.comment.model.PostWithUser;
+import com.demo.comment.model.User;
 import com.demo.comment.service.CommentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import lombok.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
     private final CommentService commentService;
-
-    public CommentController(CommentService commentService) {
-        this.commentService = commentService;
-    }
+    private final UserClient userClient;
+    private final PostClient postClient;
 
     @PostMapping
     public ResponseEntity<Comment> createComment(@RequestBody Comment comment) {
@@ -51,4 +56,18 @@ public class CommentController {
         commentService.deleteComment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/detailed")
+    public ResponseEntity<CommentDetailed> getCommentDetailed(@PathVariable String id) {
+        Comment comment = commentService.getCommentById(id);
+        try {
+            User user = userClient.getUser(comment.getUserId()).getBody();
+            PostWithUser postWithUser = postClient.getPostWithUser(comment.getPostId()).getBody();
+            return ResponseEntity.ok(new CommentDetailed(comment, user, postWithUser));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new CommentDetailed(comment, null, null));
+        }
+    }
+
+    record CommentDetailed(Comment comment, User user, PostWithUser postWithUser) {}
 }

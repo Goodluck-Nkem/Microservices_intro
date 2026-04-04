@@ -9,16 +9,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/posts")
 public class PostController {
     private final PostService postService;
     private final UserClient userClient;
-
-    public PostController(PostService postService, UserClient userClient) {
-        this.postService = postService;
-        this.userClient = userClient;
-    }
 
     @PostMapping
     public ResponseEntity<Post> createPost(@RequestBody Post post) {
@@ -41,12 +41,14 @@ public class PostController {
     }
 
     @GetMapping("/{id}/with-user")
-    public ResponseEntity<?> getPostWithUser(@PathVariable String id) {
+    public ResponseEntity<PostWithUser> getPostWithUser(@PathVariable String id) {
         Post post = postService.getPostById(id);
         try {
-            User user = userClient.getUser(post.getUserId());
+            User user = userClient.getUser(post.getUserId()).getBody();
+            log.info("{id}/with-user -> getUser() successful", id);
             return ResponseEntity.ok(new PostWithUser(post, user));
         } catch (Exception e) {
+            log.info("{id}/with-user -> getUser() failed", id);
             return ResponseEntity.ok(new PostWithUser(post, null));
         }
     }
