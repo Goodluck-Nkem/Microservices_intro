@@ -4,6 +4,7 @@ import com.demo.comment.feign.PostClient;
 import com.demo.comment.feign.UserClient;
 import com.demo.comment.model.Comment;
 import com.demo.comment.model.Post;
+import com.demo.comment.model.PostWithUser;
 import com.demo.comment.model.User;
 import com.demo.comment.repository.CommentRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -43,14 +44,14 @@ public class CommentService {
 
     @CircuitBreaker(name = "userService", fallbackMethod = "getUserFallback")
     public User getUser(String userId) {
-        throw new RuntimeException("Simulated user service failure");
+        return userClient.getUser(userId).getBody();
     }
 
     public User getUserFallback(String userId, Throwable t) {
         User fallback = new User();
         fallback.setId(userId);
         fallback.setName("Unknown (Service Unavailable)");
-        fallback.setEmail("unavailable@fallback");
+        fallback.setEmail(null);
         return fallback;
     }
 
@@ -64,6 +65,19 @@ public class CommentService {
         Post fallback = new Post();
         fallback.setId(postId);
         fallback.setTitle("Unknown (Service Unavailable)");
+        return fallback;
+    }
+
+    @CircuitBreaker(name = "postService", fallbackMethod = "getPostAndAuthorFallback")
+    public PostWithUser getPostAndAuthor(String postId) {
+        return postClient.getPostWithUser(postId).getBody();
+    }
+
+    public PostWithUser getPostAndAuthorFallback(String postId, Throwable t) {
+        PostWithUser fallback = new PostWithUser(
+            getPostFallback(postId, t),
+            getUserFallback(null, t)
+        );
         return fallback;
     }
 

@@ -2,12 +2,12 @@ package com.demo.notification.model;
 
 import lombok.*;
 
-@Getter
-@Setter
 @NoArgsConstructor
-public class Post {
+@Setter
+@Getter
+public class Comment {
     private String id;
+    private String postId;
     private String userId;
-    private String title;
     private String content;
 }
