@@ -2,20 +2,19 @@ package com.demo.post.service;
 
 import com.demo.post.model.Post;
 import com.demo.post.repository.PostRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
-
-    public PostService(PostRepository postRepository, KafkaTemplate<String, String> kafkaTemplate) {
-        this.postRepository = postRepository;
-        this.kafkaTemplate = kafkaTemplate;
-    }
 
     public Post createPost(Post post) {
         Post saved = postRepository.save(post);
@@ -38,6 +37,5 @@ public class PostService {
 
     public void deletePost(String id) {
         postRepository.deleteById(id);
-        kafkaTemplate.send("post-events", "POST_DELETED:" + id);
     }
 }

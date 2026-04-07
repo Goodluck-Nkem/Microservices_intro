@@ -9,14 +9,19 @@ import lombok.*;
 @NoArgsConstructor
 @Setter
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Document(collection = "comments")
 public class Comment {
     @Id
+    @EqualsAndHashCode.Include
     private String id;
+
     @NonNull
     private String postId;
+
     @NonNull
     private String userId;
+
     @NonNull
     private String content;
 }

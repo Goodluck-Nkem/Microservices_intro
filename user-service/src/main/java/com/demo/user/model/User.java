@@ -8,12 +8,16 @@ import lombok.*;
 @RequiredArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Document(collection = "users")
 public class User {
     @Id
+    @EqualsAndHashCode.Include
     private String id;
+
     @NonNull
     private String name;
+    
     @NonNull
     private String email;
 }

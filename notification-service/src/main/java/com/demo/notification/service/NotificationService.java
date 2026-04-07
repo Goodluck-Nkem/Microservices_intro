@@ -3,11 +3,12 @@ package com.demo.notification.service;
 import com.demo.notification.feign.CommentClient;
 import com.demo.notification.feign.PostClient;
 import com.demo.notification.feign.UserClient;
-import com.demo.notification.model.Comment;
 import com.demo.notification.model.CommentEvent;
-import com.demo.notification.model.Post;
 import com.demo.notification.model.PostEvent;
-import com.demo.notification.model.User;
+import com.demo.notification.model.client.Comment;
+import com.demo.notification.model.client.Post;
+import com.demo.notification.model.client.User;
+
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,7 +27,6 @@ public class NotificationService {
     private final CommentClient commentClient;
 
     public void handlePostEvent(String message) {
-        log.info("Received post event: {}", message);
         String[] parts = message.split(":");
         if (parts.length >= 2) {
             String eventType = parts[0];
@@ -61,7 +61,6 @@ public class NotificationService {
     }
 
     public void handleCommentEvent(String message) {
-        log.info("Received comment event: {}", message);
         String[] parts = message.split(":");
         if (parts.length >= 2) {
             String eventType = parts[0];

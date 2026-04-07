@@ -1,9 +1,10 @@
-package com.demo.post.model;
+package com.demo.notification.model.client;
+
 import lombok.*;
 
-@NoArgsConstructor
-@Setter
 @Getter
+@Setter
+@NoArgsConstructor
 public class User {
     private String id;
     private String name;

@@ -3,9 +3,9 @@ package com.demo.comment.service;
 import com.demo.comment.feign.PostClient;
 import com.demo.comment.feign.UserClient;
 import com.demo.comment.model.Comment;
-import com.demo.comment.model.Post;
-import com.demo.comment.model.PostWithUser;
-import com.demo.comment.model.User;
+import com.demo.comment.model.client.Post;
+import com.demo.comment.model.client.PostWithUser;
+import com.demo.comment.model.client.User;
 import com.demo.comment.repository.CommentRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -83,6 +83,5 @@ public class CommentService {
 
     public void deleteComment(String id) {
         commentRepository.deleteById(id);
-        kafkaTemplate.send("comment-events", "COMMENT_DELETED:" + id);
     }
 }

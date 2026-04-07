@@ -2,7 +2,7 @@ package com.demo.post.controller;
 
 import com.demo.post.feign.UserClient;
 import com.demo.post.model.Post;
-import com.demo.post.model.User;
+import com.demo.post.model.client.User;
 import com.demo.post.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

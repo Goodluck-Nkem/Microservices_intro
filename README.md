@@ -59,9 +59,8 @@ A demonstration project showcasing a microservices architecture with Spring Clou
 
 ## Prerequisites
 
-- Java 17+
+- Java 21+
 - Maven 3.8+
-- Docker & Docker Compose (for Kafka)
 - MongoDB running on localhost:27017
 - Prometheus running on localhost:9090
 - Zipkin running on localhost:9411
@@ -71,24 +70,11 @@ A demonstration project showcasing a microservices architecture with Spring Clou
 
 ### Kafka Setup
 
-Since you have Kafka downloaded, start it using:
+Start Zookeeper and Kafka locally:
 
-**Windows:**
-```batch
-cd kafka_2.13-3.9.1
-bin\windows\zookeeper-server-start.bat config\zookeeper.properties
-bin\windows\kafka-server-start.bat config\server.properties
-```
-
-**macOS/Linux:**
 ```bash
 ./kafka_2.13-3.9.1/bin/zookeeper-server-start.sh ./kafka_2.13-3.9.1/config/zookeeper.properties
 sleep 20 && ./kafka_2.13-3.9.1/bin/kafka-server-start.sh ./kafka_2.13-3.9.1/config/server.properties
-```
-
-Or use Docker Compose:
-```bash
-docker-compose up -d
 ```
 
 ### Local Services
@@ -99,24 +85,30 @@ Ensure these are running:
 - Zipkin (localhost:9411)
 - Grafana (localhost:3000)
 
+Use Docker Compose (background):
+```bash
+docker compose up -d
+```
+
 ## Build & Run
 
-### Build All Services
+### Compile All Services to get dependencies ready
 
 ```bash
 cd microservices-demo
-mvn clean package -DskipTests
+mvn dependency:resolve
+mvn clean compile
 ```
 
 ### Run Services (in order)
 
-1. **Start Eureka Server** (must start first):
+1. **Start Eureka Server** (must start first, then others can start):
 ```bash
 cd eureka-server
 mvn spring-boot:run
 ```
 
-2. **Start API Gateway** (or start after other services):
+2. **Start API Gateway**:
 ```bash
 cd api-gateway
 mvn spring-boot:run
@@ -163,6 +155,9 @@ curl http://localhost:8080/users
 
 # Get user by ID
 curl http://localhost:8080/users/{userId}
+
+# Delete user by ID
+curl -X DELETE http://localhost:8080/users/{userId}
 ```
 
 ### Post Service (Port 8082)
@@ -181,6 +176,9 @@ curl http://localhost:8080/posts/{postId}
 
 # Get post with user info (OpenFeign call)
 curl http://localhost:8080/posts/{postId}/with-user
+
+# Delete post by ID
+curl -X DELETE http://localhost:8080/posts/{postId}
 ```
 
 ### Comment Service (Port 8083)
@@ -197,10 +195,13 @@ curl http://localhost:8080/comments
 # Get comments for a post
 curl http://localhost:8080/comments/post/{postId}
 
+# Delete comment by ID
+curl -X DELETE http://localhost:8080/comments/{commentId}
+
 # Get comment with post via openfeign
 curl http://localhost:8080/comments/{commentId}/detailed
 
-# Test circuit breaker
+# Test circuit breaker (by passing fake IDs)
 curl http://localhost:8080/comments/test-circuit-breaker/user/{userId}
 curl http://localhost:8080/comments/test-circuit-breaker/post/{postId}
 ```
@@ -233,7 +234,6 @@ curl http://localhost:8080/comments/test-circuit-breaker/user/123
 
 ### Prometheus Metrics
 
-- Eureka: http://localhost:8761/actuator/prometheus
 - API Gateway: http://localhost:8080/actuator/prometheus
 - User Service: http://localhost:8081/actuator/prometheus
 - Post Service: http://localhost:8082/actuator/prometheus
@@ -274,8 +274,7 @@ The Notification Service listens to both topics and logs received events.
 ```
 microservices-demo/
 ├── pom.xml                    # Parent POM
-├── docker-compose.yml         # Kafka docker setup
-├── setup-kafka.bat/sh         # Kafka setup scripts
+├── docker-compose.yml         # Mongo,Zipkin,Prometheus,Grafana docker setup
 ├── common/                    # Shared code
 ├── eureka-server/            # Service Registry
 ├── api-gateway/              # API Gateway

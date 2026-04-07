@@ -1,4 +1,4 @@
-package com.demo.comment.model;
+package com.demo.comment.model.client;
 
 import lombok.*;
 

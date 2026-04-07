@@ -8,14 +8,19 @@ import lombok.*;
 @RequiredArgsConstructor
 @Setter
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Document(collection = "posts")
 public class Post {
     @Id
+    @EqualsAndHashCode.Include
     private String id;
+
     @NonNull
     private String userId;
+
     @NonNull
     private String title;
+
     @NonNull
     private String content;
 }

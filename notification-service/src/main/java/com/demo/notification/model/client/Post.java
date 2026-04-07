@@ -1,4 +1,4 @@
-package com.demo.notification.model;
+package com.demo.notification.model.client;
 
 import lombok.*;
 
