@@ -77,30 +77,29 @@ Start Zookeeper and Kafka locally:
 sleep 20 && ./kafka_2.13-3.9.1/bin/kafka-server-start.sh ./kafka_2.13-3.9.1/config/server.properties
 ```
 
-### Local Services
+### Auxiliary Services
 
-Ensure these are running:
+Ensure these are running locally:
 - MongoDB (localhost:27017)
 - Prometheus (localhost:9090)
 - Zipkin (localhost:9411)
 - Grafana (localhost:3000)
 
-Use Docker Compose (background):
+Or use Docker Compose (to run in container instead):
 ```bash
 docker compose up -d
 ```
 
-## Build & Run
+## Main services: Build & Run
 
-### Compile All Services to get dependencies ready
+### Resolve dependencies and Compile all services
 
 ```bash
-cd microservices-demo
 mvn dependency:resolve
 mvn clean compile
 ```
 
-### Run Services (in order)
+### Run Services Locally (in order)
 
 1. **Start Eureka Server** (must start first, then others can start):
 ```bash
