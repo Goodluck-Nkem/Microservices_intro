@@ -226,6 +226,20 @@ curl http://localhost:8080/comments/test-circuit-breaker/user/{userId}
 curl http://localhost:8080/comments/test-circuit-breaker/post/{postId}
 ```
 
+### WebSocket Test Page
+
+A WebSocket test page is available to demonstrate real-time comment updates:
+
+```bash
+# Load the WebSocket test client
+http://localhost:8080/websocket_test.html
+```
+
+The test page provides a UI to:
+1. Connect to a specific post via WebSocket to receive real-time comments
+2. Send new comments through the standard REST API
+3. View live comment updates as they occur from any client
+
 ### Notification Service (Port 8084)
 
 ```bash

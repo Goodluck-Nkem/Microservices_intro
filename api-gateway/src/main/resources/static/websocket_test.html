@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Comment Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .section {
+            flex: none;
+            padding: 20px;
+            border-bottom: 2px solid #ccc;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-1 { background-color: #e3f2fd; }
+        .section-2 { background-color: #e8f5e8; }
+        .section-3 { background-color: #fff3e0; }
+        
+        .section-3-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h2 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .input-row input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .input-row button {
+            padding: 10px 20px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .input-row button:hover {
+            background-color: #1976d2;
+        }
+        
+        .input-row button:disabled {
+            background-color: #bbdefb;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            min-height: 24px;
+            flex-shrink: 0;
+        }
+        
+        .status.success {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        
+        .status.error {
+            background-color: #ffcdd2;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        
+        .field-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+        
+        .field-row label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .field-row input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .post-info {
+            padding: 5px 0;
+            flex-shrink: 0;
+        }
+        
+        .post-info label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .post-info div {
+            font-size: 16px;
+            color: #000;
+            margin-top: 2px;
+            white-space: pre-wrap;
+        }
+        
+        .comment-list {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            min-height: 50px;
+        }
+        
+        .comment-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .comment-content {
+            margin: 5px 0;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        
+        .comment-meta {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .clear-btn {
+            padding: 10px 20px;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+        
+        .clear-btn:hover {
+            background-color: #f57c00;
+        }
+        
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div class="section section-1">
+        <h2>Section 1: Connect to Post</h2>
+        <div class="input-row">
+            <input type="text" id="postIdInput" placeholder="Enter postId">
+            <button id="connectBtn">Connect</button>
+        </div>
+        <div class="status" id="connectionStatus"></div>
+        <div class="field-row">
+            <label>Post Title:</label>
+            <div class="post-info">
+                <div id="postTitle" class="value"></div>
+            </div>
+        </div>
+        <div class="field-row">
+            <label>Post Content:</label>
+            <div class="post-info">
+                <div id="postContent" class="value"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section section-2">
+        <h2>Section 2: Send Comment</h2>
+        <div class="content-area">
+            <div class="field-row">
+                <label for="userIdInput">User ID:</label>
+                <input type="text" id="userIdInput" placeholder="Enter commenter userId">
+            </div>
+            <div class="field-row">
+                <label for="commentInput">Comment:</label>
+                <input type="text" id="commentInput" placeholder="Enter your comment">
+            </div>
+            <div class="input-row">
+                <button id="sendBtn">Send Comment</button>
+            </div>
+            <div class="status" id="sendStatus"></div>
+        </div>
+    </div>
+    
+    <div class="section section-3">
+        <h2>Section 3: Live Comments Feed</h2>
+        <div class="section-3-wrapper">
+            <div class="comment-list" id="commentsContainer"></div>
+            <button class="clear-btn" id="clearBtn">Clear Comments</button>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentPostId = null;
+        
+        document.getElementById('connectBtn').addEventListener('click', connectToPost);
+        document.getElementById('sendBtn').addEventListener('click', sendComment);
+        document.getElementById('clearBtn').addEventListener('click', clearComments);
+        
+        function connectToPost() {
+            const postId = document.getElementById('postIdInput').value.trim();
+            if (!postId) {
+                showStatus('connectionStatus', 'Please enter a postId', 'error');
+                return;
+            }
+            
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            
+            document.getElementById('commentsContainer').innerHTML = '';
+            
+            fetch(`http://localhost:8080/posts/${postId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Post not found');
+                    }
+                    return response.json();
+                })
+                .then(post => {
+                    document.getElementById('postTitle').textContent = post.title || '';
+                    document.getElementById('postContent').textContent = post.content || '';
+                    currentPostId = postId;
+                    
+                    const wsUrl = `ws://localhost:8083/ws/comments/${postId}`;
+                    console.log('Connecting to WebSocket:', wsUrl);
+                    
+                    ws = new WebSocket(wsUrl);
+                    
+                    ws.onopen = () => {
+                        showStatus('connectionStatus', 'Connected successfully!', 'success');
+                    };
+                    
+                    ws.onmessage = (event) => {
+                        console.log('Received message:', event.data);
+                        try {
+                            const comment = JSON.parse(event.data);
+                            addCommentToFeed(comment);
+                        } catch (e) {
+                            console.error('Error parsing WebSocket message:', e);
+                        }
+                    };
+                    
+                    ws.onerror = (event) => {
+                        const errorMsg = 'WebSocket connection failed. Check console for details.';
+                        showStatus('connectionStatus', 'WebSocket connection error', 'error');
+                        window.alert(errorMsg + '\n\nTarget: ' + wsUrl);
+                        console.error('WebSocket error:', event);
+                        console.error('WebSocket readyState:', ws.readyState);
+                    };
+                    
+                    ws.onclose = (event) => {
+                        const reason = event.reason ? ` - ${event.reason}` : '';
+                        showStatus('connectionStatus', 'Disconnected' + reason, 'error');
+                        ws = null;
+                    };
+                })
+                .catch(error => {
+                    showStatus('connectionStatus', error.message, 'error');
+                    document.getElementById('postTitle').textContent = '';
+                    document.getElementById('postContent').textContent = '';
+                });
+        }
+        
+        function sendComment() {
+            if (!currentPostId) {
+                showStatus('sendStatus', 'Please connect to a post first', 'error');
+                return;
+            }
+            
+            const userId = document.getElementById('userIdInput').value.trim();
+            const content = document.getElementById('commentInput').value.trim();
+            
+            if (!userId) {
+                showStatus('sendStatus', 'Please enter a userId', 'error');
+                return;
+            }
+            
+            if (!content) {
+                showStatus('sendStatus', 'Please enter a comment', 'error');
+                return;
+            }
+            
+            fetch('http://localhost:8080/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    postId: currentPostId,
+                    userId: userId,
+                    content: content
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text || 'Failed to send comment'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showStatus('sendStatus', 'Comment sent successfully!', 'success');
+                document.getElementById('commentInput').value = '';
+            })
+            .catch(error => {
+                showStatus('sendStatus', error.message, 'error');
+                console.error('Error sending comment:', error);
+            });
+        }
+        
+        function addCommentToFeed(comment) {
+            const container = document.getElementById('commentsContainer');
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.innerHTML = `
+                <div class="comment-meta">By: ${comment.userId || 'Unknown'} | ${new Date(comment.timestamp || Date.now()).toLocaleTimeString()}</div>
+                <div class="comment-content">${comment.content}</div>
+            `;
+            container.appendChild(commentDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function clearComments() {
+            document.getElementById('commentsContainer').innerHTML = '';
+        }
+        
+        function showStatus(elementId, message, type = '') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'status';
+            if (type === 'success') {
+                element.classList.add('success');
+            } else if (type === 'error') {
+                element.classList.add('error');
+            }
+        }
+        
+        document.getElementById('postIdInput').addEventListener('input', () => {
+            showStatus('connectionStatus', '');
+            document.getElementById('postTitle').textContent = '';
+            document.getElementById('postContent').textContent = '';
+        });
+        
+        document.getElementById('userIdInput').addEventListener('input', () => {
+            showStatus('sendStatus', '');
+        });
+        
+        document.getElementById('commentInput').addEventListener('input', () => {
+            showStatus('sendStatus', '');
+        });
+    </script>
+</body>
+</html>

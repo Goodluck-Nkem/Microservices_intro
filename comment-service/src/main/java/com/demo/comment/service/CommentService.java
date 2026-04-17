@@ -7,6 +7,7 @@ import com.demo.comment.model.client.Post;
 import com.demo.comment.model.client.PostWithUser;
 import com.demo.comment.model.client.User;
 import com.demo.comment.repository.CommentRepository;
+import com.demo.comment.websocket.CommentWebSocketHandler;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class CommentService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final UserClient userClient;
     private final PostClient postClient;
+    private final CommentWebSocketHandler webSocketHandler;
 
 
     public Comment createComment(Comment comment) {
@@ -36,6 +38,7 @@ public class CommentService {
         }
         Comment saved = commentRepository.save(comment);
         kafkaTemplate.send("comment-events", "COMMENT_CREATED:" + saved.getId());
+        webSocketHandler.broadcastToPost(saved.getPostId(), saved.getId(), saved.getUserId(), saved.getContent());
         return saved;
     }
 
