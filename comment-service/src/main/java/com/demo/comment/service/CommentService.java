@@ -24,6 +24,16 @@ public class CommentService {
 
 
     public Comment createComment(Comment comment) {
+        User user = userClient.getUser(comment.getUserId()).getBody();
+        if (user == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST, "User not found");
+        }
+        Post post = postClient.getPost(comment.getPostId()).getBody();
+        if (post == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST, "Post not found");
+        }
         Comment saved = commentRepository.save(comment);
         kafkaTemplate.send("comment-events", "COMMENT_CREATED:" + saved.getId());
         return saved;
@@ -40,6 +50,24 @@ public class CommentService {
 
     public List<Comment> getCommentsByPostId(String postId) {
         return commentRepository.findByPostId(postId);
+    }
+
+    public List<Comment> searchByPostTitle(String title) {
+        List<Post> posts = postClient.getPostsByTitle(title).getBody();
+        if (posts == null || posts.isEmpty()) {
+            return List.of();
+        }
+        List<String> postIds = posts.stream().map(Post::getId).toList();
+        return commentRepository.findByPostIdIn(postIds);
+    }
+
+    public List<Comment> searchByCommenter(String commenterName) {
+        List<User> users = userClient.getUsersByName(commenterName).getBody();
+        if (users == null || users.isEmpty()) {
+            return List.of();
+        }
+        List<String> userIds = users.stream().map(User::getId).toList();
+        return commentRepository.findByUserIdIn(userIds);
     }
 
     @CircuitBreaker(name = "userService", fallbackMethod = "getUserFallback")

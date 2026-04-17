@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface PostRepository extends MongoRepository<Post, String> {
     List<Post> findByUserId(String userId);
+    List<Post> findByTitleContainingIgnoreCase(String title);
+    List<Post> findByUserIdIn(List<String> userIds);
 }

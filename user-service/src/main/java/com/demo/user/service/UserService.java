@@ -30,4 +30,14 @@ public class UserService {
     public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
+
+    public List<User> searchByName(String name) {
+        return userRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public void deleteByName(String name) {
+        User user = userRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new RuntimeException("User not found with name: " + name));
+        userRepository.delete(user);
+    }
 }

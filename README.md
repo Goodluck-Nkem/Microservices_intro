@@ -155,14 +155,20 @@ curl http://localhost:8080/users
 # Get user by ID
 curl http://localhost:8080/users/{userId}
 
+# Search users by name content (case-insensitive)
+curl "http://localhost:8080/users/search?name=John"
+
 # Delete user by ID
 curl -X DELETE http://localhost:8080/users/{userId}
+
+# Delete user by exact name match (case-insensitive)
+curl -X DELETE http://localhost:8080/users/delete/John%20Doe
 ```
 
 ### Post Service (Port 8082)
 
 ```bash
-# Create post
+# Create post (requires valid userId)
 curl -X POST http://localhost:8080/posts \
   -H "Content-Type: application/json" \
   -d '{"userId": "{userId}", "title": "My First Post", "content": "Hello World!"}'
@@ -176,14 +182,23 @@ curl http://localhost:8080/posts/{postId}
 # Get post with user info (OpenFeign call)
 curl http://localhost:8080/posts/{postId}/with-user
 
+# Search posts by title content (case-insensitive)
+curl "http://localhost:8080/posts/search?title=First"
+
+# Search posts by author's name (case-insensitive)
+curl "http://localhost:8080/posts/search?author=John"
+
 # Delete post by ID
 curl -X DELETE http://localhost:8080/posts/{postId}
+
+# Delete post by exact title match (case-insensitive)
+curl -X DELETE http://localhost:8080/posts/delete/My%20First%20Post
 ```
 
 ### Comment Service (Port 8083)
 
 ```bash
-# Create comment
+# Create comment (requires valid postId and userId)
 curl -X POST http://localhost:8080/comments \
   -H "Content-Type: application/json" \
   -d '{"postId": "{postId}", "userId": "{userId}", "content": "Great post!"}'
@@ -199,6 +214,12 @@ curl -X DELETE http://localhost:8080/comments/{commentId}
 
 # Get comment with post via openfeign
 curl http://localhost:8080/comments/{commentId}/detailed
+
+# Search comments by post's title content (case-insensitive)
+curl "http://localhost:8080/comments/search?title=First"
+
+# Search comments by user's name (case-insensitive)
+curl "http://localhost:8080/comments/search?commenter=John"
 
 # Test circuit breaker (by passing fake IDs)
 curl http://localhost:8080/comments/test-circuit-breaker/user/{userId}

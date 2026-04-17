@@ -60,6 +60,19 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getPost(postId));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Comment>> searchComments(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String commenter) {
+        if (title != null) {
+            return ResponseEntity.ok(commentService.searchByPostTitle(title));
+        }
+        if (commenter != null) {
+            return ResponseEntity.ok(commentService.searchByCommenter(commenter));
+        }
+        return ResponseEntity.ok(commentService.getAllComments());
+    }
+
     record CommentDetailed(Comment comment, User user, PostWithUser postWithAuthor) {}
 
 }

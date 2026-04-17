@@ -36,4 +36,15 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> searchByName(@RequestParam String name) {
+        return ResponseEntity.ok(userService.searchByName(name));
+    }
+
+    @DeleteMapping("/delete/{name}")
+    public ResponseEntity<Void> deleteByName(@PathVariable String name) {
+        userService.deleteByName(name);
+        return ResponseEntity.noContent().build();
+    }
 }

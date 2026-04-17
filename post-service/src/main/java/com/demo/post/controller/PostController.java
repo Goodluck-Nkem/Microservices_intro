@@ -59,5 +59,24 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Post>> searchPosts(
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String title) {
+        if (author != null) {
+            return ResponseEntity.ok(postService.searchByAuthor(author));
+        }
+        if (title != null) {
+            return ResponseEntity.ok(postService.searchByTitle(title));
+        }
+        return ResponseEntity.ok(postService.getAllPosts());
+    }
+
+    @DeleteMapping("/delete/{title}")
+    public ResponseEntity<Void> deleteByTitle(@PathVariable String title) {
+        postService.deleteByTitle(title);
+        return ResponseEntity.noContent().build();
+    }
+
     record PostWithUser(Post post, User user) {}
 }

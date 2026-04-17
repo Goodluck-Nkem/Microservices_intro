@@ -8,3 +8,7 @@ setup-kafka.*
 */.settings
 */bin
 .vscode
+.idea
+*.factorypath
+.DS_Store
+.scratch.txt
