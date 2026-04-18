@@ -272,7 +272,7 @@
                     document.getElementById('postContent').textContent = post.content || '';
                     currentPostId = postId;
                     
-                    const wsUrl = `ws://localhost:8083/ws/comments/${postId}`;
+                    const wsUrl = `ws://localhost:8080/ws/comments/${postId}`;
                     console.log('Connecting to WebSocket:', wsUrl);
                     
                     ws = new WebSocket(wsUrl);

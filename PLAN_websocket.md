@@ -14,7 +14,7 @@ This document outlines the implementation of a WebSocket server in the comment-s
 
 ### 2. API Gateway
 - **WebSocket Route**: Added route for `/ws/comments/**` to direct traffic to comment-service
-- Note: WebSocket connections connect directly to comment-service (port 8083) rather than through gateway
+- Uses `lb:ws://comment-service` for load-balanced WebSocket proxying through gateway
 
 ### 3. Client Test Page
 - **HTML File**: `websocket_test.html` in api-gateway/src/main/resources/static/
@@ -36,7 +36,7 @@ This document outlines the implementation of a WebSocket server in the comment-s
 ## Technical Details
 
 ### WebSocket Connection
-- URL: `ws://localhost:8083/ws/comments/{postId}` (direct connection to comment-service)
+- URL: `ws://localhost:8080/ws/comments/{postId}` (through API Gateway)
 - Path variable `{postId}` determines which post's comments to receive
 - Automatic cleanup of disconnected sessions
 - CORS enabled for `http://localhost:8080` origin
@@ -57,7 +57,7 @@ Broadcast JSON from server to client:
 1. **Connection Flow**:
    - User enters postId and clicks Connect
    - Client validates post exists via `GET /posts/{postId}`
-   - If valid, connects to WebSocket endpoint at `ws://localhost:8083/ws/comments/{postId}`
+   - If valid, connects to WebSocket endpoint at `ws://localhost:8080/ws/comments/{postId}`
    - On success: shows green status, displays post title/content as plain text views
    - On failure: shows red error status + window.alert with detailed error
 
@@ -103,23 +103,8 @@ Broadcast JSON from server to client:
 5. Observe real-time updates in the comments feed section
 6. Open multiple browser tabs to test real-time sync between clients
 
-## Issues Fixed During Implementation
+## Architecture Update (2025)
 
-1. **WebSocket Handler Compilation Error**: Fixed lambda syntax in `CommentWebSocketHandler.java` - changed `CopyOnWriteArraySet.new` to `new CopyOnWriteArraySet<>()`
-
-2. **API Gateway WebSocket Conflict**: Removed `WebSocketConfig.java` from api-gateway as it was conflicting with gateway routes and causing API endpoints to fail
-
-3. **Spring Cloud Gateway Incompatible**: Removed `spring-boot-starter-websocket` from api-gateway as Spring Cloud Gateway is reactive and doesn't work with spring-boot-starter-web/websocket
-
-4. **CORS Issue**: Added `setAllowedOrigins("http://localhost:8080")` to WebSocketConfig in comment-service to allow browser WebSocket connections
-
-5. **WebSocket Connection URL**: Changed frontend to connect directly to comment-service at `ws://localhost:8083/ws/comments/{postId}` instead of going through API Gateway
-
-6. **UI Issues Fixed**:
-   - Changed layout from horizontal to vertical (each section in separate row)
-   - Post Title and Post Content are now plain text views (not input fields)
-   - Section 3 comment list is scrollable with clear button always visible
-   - Removed automatic clearing of Section 2 on Connect
-   - Added window.alert for WebSocket error details
-   - Removed Connect button disable (allows reconnecting to different postId)
-   - Added Section 3 comments list clear on Connect click
+- **WebSocket Route**: Changed from `lb://comment-service` to `lb:ws://comment-service` in API Gateway
+- **Frontend**: Connects to `ws://localhost:8080/ws/comments/{postId}` through API Gateway
+- This enables centralized routing through gateway for consistency with other services

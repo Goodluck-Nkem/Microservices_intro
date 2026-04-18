@@ -15,7 +15,7 @@ This document explains how the WebSocket real-time comment feature was implement
 │  └────────────┬───────────┘                                  │   │
 │               │                                                │   │
 │    ┌──────────┴──────────┐                                   │   │
-│    │ REST: http://8080   │ WebSocket: ws://8083              │   │
+│    │ REST: http://8080   │ WebSocket: ws://8080              │   │
 └────┼─────────────────────┼───────────────────────────────────┘   │
      │                     │
      │                     │
@@ -299,14 +299,14 @@ spring.cloud.gateway.routes[2].predicates[0]=Path=/comments/**
 
 # WebSocket route
 spring.cloud.gateway.routes[3].id=comment-service-ws
-spring.cloud.gateway.routes[3].uri=lb://comment-service
+spring.cloud.gateway.routes[3].uri=lb:ws://comment-service
 spring.cloud.gateway.routes[3].predicates[0]=Path=/ws/comments/**
 ```
 
 **Important notes**:
-- WebSocket route uses `lb://comment-service` (load balancer)
-- However, we discovered that browser WebSocket connections work better when connecting directly to the comment-service (port 8083), not through the gateway
-- This is because Spring Cloud Gateway's WebSocket support has limitations with the reactive stack
+- WebSocket route uses `lb:ws://comment-service` (load-balanced WebSocket proxy)
+- Spring Cloud Gateway supports WebSocket routing via the `ws:` scheme prefix
+- This enables unified routing through gateway port 8080 for consistency
 
 ---
 
@@ -421,9 +421,9 @@ function connectToPost() {
             document.getElementById('postContent').textContent = post.content || '';
             currentPostId = postId;
             
-            // Connect to WebSocket - DIRECTLY to comment-service (port 8083)
-            // NOT through API Gateway (8080) due to WebSocket limitations
-            const wsUrl = `ws://localhost:8083/ws/comments/${postId}`;
+            // Connect to WebSocket through API Gateway (8080)
+            // Uses lb:ws:// routing for load-balanced WebSocket proxy
+            const wsUrl = `ws://localhost:8080/ws/comments/${postId}`;
             ws = new WebSocket(wsUrl);
             
             ws.onopen = () => {
@@ -505,12 +505,12 @@ function addCommentToFeed(comment) {
 
 ## 4. Key Design Decisions
 
-### Why Connect Directly to Port 8083?
+### Why Route Through API Gateway?
 
-1. Spring Cloud Gateway is built on the reactive stack (Netty)
-2. WebSocket support in reactive Gateway has limitations
-3. Browser WebSocket connections from `http://localhost:8080` to `ws://localhost:8083` work smoothly with proper CORS configuration
-4. The WebSocket endpoint is at `/ws/comments/{postId}` on the comment-service
+1. Spring Cloud Gateway supports WebSocket routing via `lb:ws://` prefix
+2. Provides centralized routing for consistency with REST endpoints
+3. Enables load balancing for WebSocket connections across service instances
+4. The WebSocket endpoint is at `/ws/comments/{postId]` on the comment-service
 
 ### Why CORS is Required
 
